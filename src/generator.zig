@@ -15,7 +15,7 @@ const generate = cova.generate;
 const utils = cova.utils;
 
 /// This is a reference module for the program being built. Typically this is the main `.zig` file
-/// in a project that has both the `main()` function and `setup_cmd` Command. 
+/// in a project that has both the `main()` function and `setup_cmd` Command.
 const program = @import("program");
 /// This is a reference to the Build Options passed in from `build.zig`.
 const md_config = @import("md_config_opts");
@@ -39,16 +39,12 @@ const meta_info: []const []const u8 = &.{
 fn optsToConf(comptime ConfigT: type, comptime conf_opts: anytype) ?ConfigT {
     if (!conf_opts.provided) return null;
     var conf = ConfigT{};
-    for (@typeInfo(ConfigT).Struct.fields) |field| {
+    for (@typeInfo(ConfigT).@"struct".fields) |field| {
         if (std.mem.eql(u8, field.name, "provided")) continue;
         @field(conf, field.name) = @field(conf_opts, field.name);
-        if (
-            (
-                @typeInfo(@TypeOf(@field(conf, field.name))) == .Optional and 
-                @field(conf, field.name) != null
-            ) or
-            utils.indexOfEql([]const u8, meta_info, field.name) == null
-        ) continue;
+        if ((@typeInfo(@TypeOf(@field(conf, field.name))) == .optional and
+            @field(conf, field.name) != null) or
+            utils.indexOfEql([]const u8, meta_info, field.name) == null) continue;
         @field(conf, field.name) = @field(md_config, field.name);
     }
     return conf;
@@ -63,8 +59,8 @@ pub fn main() !void {
             break :docKinds kinds_out[0..];
         }
         const mdk_info = @typeInfo(generate.MetaDocConfig.MetaDocKind);
-        var kinds_list: [mdk_info.Enum.fields[1..].len]generate.MetaDocConfig.MetaDocKind = undefined;
-        for (mdk_info.Enum.fields[1..], kinds_list[0..]) |field, *kind| kind.* = @enumFromInt(field.value);
+        var kinds_list: [mdk_info.@"enum".fields[1..].len]generate.MetaDocConfig.MetaDocKind = undefined;
+        for (mdk_info.@"enum".fields[1..], kinds_list[0..]) |field, *kind| kind.* = @enumFromInt(field.value);
         const kinds_out = kinds_list;
         break :docKinds kinds_out[0..];
     };
@@ -83,8 +79,7 @@ pub fn main() !void {
                         hd_config,
                         meta.stringToEnum(generate.HelpDocsConfig.DocKind, @tagName(help_doc)).?,
                     );
-                }
-                else {
+                } else {
                     log.warn("Missing Help Doc Configuration! Skipping.", .{});
                     continue;
                 }
@@ -97,8 +92,7 @@ pub fn main() !void {
                         tc_config,
                         meta.stringToEnum(generate.TabCompletionConfig.ShellKind, @tagName(shell)).?,
                     );
-                }
-                else {
+                } else {
                     log.warn("Missing Tab Completion Configuration! Skipping.", .{});
                     continue;
                 }
@@ -111,8 +105,7 @@ pub fn main() !void {
                         at_config,
                         meta.stringToEnum(generate.ArgTemplateConfig.TemplateKind, @tagName(template)).?,
                     );
-                }
-                else {
+                } else {
                     log.warn("Missing Argument Template Configuration! Skipping.", .{});
                     continue;
                 }
