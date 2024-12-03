@@ -475,10 +475,12 @@ pub fn Generic(comptime config: Config) type {
 
                 union_info.fields = union_info.fields ++ int_info.fields;
                 for (int_tag_info.fields) |tag| {
-                    tag_info.fields = tag_info.fields ++ .{.{
+                    const new_fields: []const std.builtin.Type.EnumField = &.{.{
                         .name = tag.name,
                         .value = tag.value + 2,
                     }};
+
+                    tag_info.fields = tag_info.fields ++ new_fields;
                 }
             }
             if (config.add_base_floats) {
@@ -494,10 +496,12 @@ pub fn Generic(comptime config: Config) type {
                 const add_val = if (config.add_base_ints) 20 else 2;
                 union_info.fields = union_info.fields ++ float_info.fields;
                 for (float_tag_info.fields) |tag| {
-                    tag_info.fields = tag_info.fields ++ .{.{
+                    const new_fields: []const std.builtin.Type.EnumField = &.{.{
                         .name = tag.name,
                         .value = tag.value + add_val,
                     }};
+
+                    tag_info.fields = tag_info.fields ++ new_fields;
                 }
             }
         }
